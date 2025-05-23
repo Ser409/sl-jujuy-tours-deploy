@@ -1,0 +1,40 @@
+# Ignorar carpetas y archivos temporales
+Desktop/
+AppData/
+*.tmp
+*.log
+*.cache
+*.bin
+*.blb
+# Ignorar carpetas de descargas y archivos temporales
+Downloads/
+*.descarga
+*.tmp
+*.log
+*.cache
+*.bin
+*.blb
+NTUSER.DAT
+AppData/
+Documents/
+*.bin
+*.blb
+*.log
+*.cache
+# Ignorar carpetas y archivos del sistema
+Desktop/
+AppData/
+OneDrive/
+*.tmp
+*.log
+*.cache
+*.bin
+*.blb
+
+# Ignorar archivos del sistema de Windows
+NTUSER.DAT
+NTUSER.DAT.LOG1
+NTUSER.DAT.LOG2
+ntuser.ini
+
+
