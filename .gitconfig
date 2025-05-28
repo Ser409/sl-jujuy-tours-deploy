@@ -1,7 +1,0 @@
-[user]
-	name = Ser409
-	email = sergiovaldolaguna1@gmail.com
-[credential "https://git.heroku.com"]
-	provider = generic
-[credential]
-	helper = 
