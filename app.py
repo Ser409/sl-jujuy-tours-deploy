@@ -1,67 +1,39 @@
-from flask import Flask, request, jsonify
-import openai
-import os
-from dotenv import load_dotenv
+import requests
+from flask import Flask, request
 
 app = Flask(__name__)
-load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
-@app.route("/", methods=["GET"])
+@app.route('/', methods=['GET'])
 def home():
-    return "SL JUJUY TOURS BOT ACTIVO EN HEROKU."
+    return "SL Jujuy Tours Bot está activo en Heroku."
 
-@app.route("/webhook", methods=["GET"])
-def verify():
-    verify_token = "SL_JUJUY_TOUR_VERIF"
-    mode = request.args.get("hub.mode")
-    token = request.args.get("hub.verify_token")
-    challenge = request.args.get("hub.challenge")
-
-    if mode == "subscribe" and token == verify_token:
-        return challenge, 200
-    else:
-        return "Token inválido o método incorrecto", 403
-
-@app.route("/webhook", methods=["POST"])
+@app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
-    try:
-        data = request.get_json()
-        print("[INFO][OK] Payload recibido:", data)
-        return jsonify({"status": "ok"}), 200
-    except Exception as e:
-        print("[ERROR]", e)
-        return jsonify({"error": str(e)}), 500
+    if request.method == 'GET':
+        verify_token = "SL_JUJUY_TOUR_VERIF"
+        mode = request.args.get('hub.mode')
+        token = request.args.get('hub.verify_token')
+        challenge = request.args.get('hub.challenge')
 
-@app.route("/openai-clima", methods=["POST"])
-def openai_clima():
-    try:
-        data = request.get_json()
-        localidad = data.get("localidad", "")
-        latitud = data.get("latitud", "")
-        longitud = data.get("longitud", "")
+        if mode and token:
+            if mode == 'subscribe' and token == verify_token:
+                return challenge, 200
+            else:
+                return 'Token inválido', 403
 
-        prompt = f"Frase de pronóstico del clima en {localidad}, latitud {latitud}, longitud {longitud}"
+    elif request.method == 'POST':
+        data = request.json
 
-        respuesta = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
+        # Reenvía todo lo recibido a Make
+        requests.post(
+            'https://hook.us2.make.com/pbg4flgenfwwomjdmxwvd2evpft9gke4',
+            json=data
         )
 
-        mensaje = respuesta.choices[0].message["content"]
-        print("[OPENAI] Respuesta enviada:", mensaje)
-        return jsonify({"respuesta": mensaje}), 200
+        return 'EVENT_RECEIVED', 200
 
-    except Exception as e:
-        print("[ERROR OPENAI]", e)
-        return jsonify({"error": str(e)}), 500
+    return 'Método no permitido', 405
 
-# ---------- EJECUCIÓN DESDE HEROKU CON WAITRESS ----------
-if __name__ == "__main__":
+if __name__ == '__main__':
     from waitress import serve
-    serve(app, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    serve(app, host='0.0.0.0', port=5000)
