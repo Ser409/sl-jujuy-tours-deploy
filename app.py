@@ -15,12 +15,10 @@ def webhook():
         token = request.args.get('hub.verify_token')
         challenge = request.args.get('hub.challenge')
 
-        if mode and token:
-            if mode == 'subscribe' and token == verify_token:
-                return challenge, 200
-            else:
-                return 'Token inválido', 403
-
+        if mode == 'subscribe' and token == verify_token:
+    return str(challenge), 200
+else:
+    return 'Error de verificación', 403
     elif request.method == 'POST':
         data = request.json
 
